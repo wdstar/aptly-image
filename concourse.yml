@@ -1,0 +1,82 @@
+---
+# Concourse pipeline: aptly-image
+#   $ fly -t target sp -p aptly-image -c concourse.yml -l fly-vars.yml -l ~/sec/credentials-prod.yml
+resources:
+- name: src-git
+  type: git
+  source:
+    uri: https://github.com/wdstar/((name))-image
+    branch: master
+- name: base-image
+  type: docker-image
+  source:
+    repository: debian
+    tag: stable-slim
+    registry_mirror: https://((registry-mirror-domain))
+      # e.g. https://registry.docker.example.com:5000
+    ca_certs:
+    - domain: ((registry-mirror-domain))
+      # e.g. registry.docker.example.com:5000
+      cert: ((docker-reg-ca-cert))
+  check_every: 1h
+- name: docker-reg
+  type: docker-image
+  source:
+    repository: ((docker-id))/((name))
+    #tag: latest
+    username: ((docker-id))
+    password: ((docker-pw))
+  check_every: 12h
+
+jobs:
+- name: build-img
+  plan:
+  - aggregate:
+    - get: src-git
+      params:
+        depth: 5
+      trigger: false
+    - get: base-image
+      #params:
+      #  skip_download: true
+      trigger: true
+  - task: put-aptly-ver
+    image: base-image
+    config:
+      platform: linux
+      outputs:
+      - name: aptly
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          apt-get update
+          apt-get upgrade -y
+          apt-get install -y --no-install-recommends ca-certificates gnupg dirmngr
+          apt-key adv --keyserver keys.gnupg.net --recv-keys 9E3E53F19C7DE460
+          apt-get update
+          apt-get install -y --no-install-recommends aptly
+          aptly version | awk -F':[ \t]+' '{ print $2 }' > aptly/ver
+          cat aptly/ver
+  - put: docker-reg
+    params:
+      build: src-git
+      tag: aptly/ver
+      tag_as_latest: true
+    get_params:
+      skip_download: true
+# - name: test-img
+#   plan:
+#   - get: docker-reg
+#     trigger: true
+#   - task: echo-aptly-ver
+#     image: docker-reg
+#     config:
+#       platform: linux
+#       run:
+#         path: bash
+#         args:
+#         - -c
+#         - |
+#           aptly version
