@@ -13,7 +13,11 @@ RUN chmod +x /usr/local/bin/aptly-init.sh && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir /aptly-data
+    mkdir /aptly-data && \
+    mkdir -p /root/.gnupg && \
+    chmod 700 /root/.gnupg
+
+VOLUME ["/root/.gnupg"]
 
 ENTRYPOINT /usr/local/bin/aptly-init.sh
 

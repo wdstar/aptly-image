@@ -8,15 +8,16 @@ This image consists of debian:stable-slim + aptly.
 ## Usage
 
 ```
-$ docker run -d whitestar/aptly
+$ docker run -d -v '/root/.gnupg:/root/.gnupg:rw' whitestar/aptly
 or
 $ sudo mkdir /var/lib/aptly
-$ docker run -d -v '/var/lib/aptly:/aptly-data:rw' whitestar/aptly
+$ docker run -d -v '/root/.gnupg:/root/.gnupg:rw' -v '/var/lib/aptly:/aptly-data:rw' whitestar/aptly
 ```
 
 ## Configurations
 
 - `/etc/aptly.conf`: configuration file.
+- `/root/.gnupg`: for GNU PG signing.
 - `/aptly-data`: persistent volume.
 - `8080`: distribution service port.
 - `8081`: REST API service port.
