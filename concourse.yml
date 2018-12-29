@@ -41,6 +41,7 @@ jobs:
       #  skip_download: true
       trigger: true
   - task: put-aptly-ver
+    attempts: 3
     image: base-image
     config:
       platform: linux
@@ -60,6 +61,7 @@ jobs:
           aptly version | awk -F':[ \t]+' '{ print $2 }' > aptly/ver
           cat aptly/ver
   - put: docker-reg
+    attempts: 3
     params:
       build: src-git
       tag: aptly/ver
