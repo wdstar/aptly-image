@@ -1,6 +1,6 @@
 ---
 # Concourse pipeline: aptly-image
-#   $ fly -t target sp -p aptly-image -c concourse.yml -l fly-vars.yml -l ~/sec/credentials-prod.yml
+#   $ fly -t $CC_TARGET sp -p aptly-image -c concourse.yml -l fly-vars.yml -l ~/sec/credentials-prod.yml
 resources:
 - name: src-git
   type: git
@@ -55,7 +55,7 @@ jobs:
           apt-get update
           apt-get upgrade -y
           apt-get install -y --no-install-recommends ca-certificates gnupg dirmngr
-          apt-key adv --keyserver keys.gnupg.net --recv-keys 9E3E53F19C7DE460
+          apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9E3E53F19C7DE460
           apt-get update
           apt-get install -y --no-install-recommends aptly
           aptly version | awk -F':[ \t]+' '{ print $2 }' > aptly/ver

@@ -28,7 +28,7 @@ $ docker run -d -v '/root/.gnupg:/root/.gnupg:rw' -v '/var/lib/aptly:/aptly-data
 - Author:: wdstar at github.com
 
 ```text
-Copyright 2017, wdstar
+Copyright 2017-2018, wdstar
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
